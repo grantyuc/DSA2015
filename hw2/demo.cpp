@@ -3,7 +3,6 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include <ctime>
 
 #define N 149639105
 #define DATAPOS_WORKSTATION "/tmp2/KDDCup2012/track2/kddcup2012track2.txt"
@@ -305,8 +304,6 @@ void printdata(AdData* pdata[], const int& first, const int& last){
 
 int main(int argc, char* argv[]){
 
-    time_t begin = time(NULL);
-
     //open data file..
     ifstream fin;
     fin.sync_with_stdio(false);
@@ -327,9 +324,6 @@ int main(int argc, char* argv[]){
     int dataNum;
     AdData** data = new AdData*[N];
     
-    time_t readinstart = time(NULL);
-    cout << difftime(readinstart, begin) << endl;
-    
     for (dataNum = 0; dataNum<N; ++dataNum){
         data[dataNum] = new AdData;
         if(!readinLine(fin, data[dataNum])){
@@ -343,14 +337,8 @@ int main(int argc, char* argv[]){
         vpdata.push_back(data[i]);
     }
 
-    time_t sortstart = time(NULL);
-    cout << difftime(sortstart, readinstart) << endl;
-
     //sort by UserID first..
     stable_sort(vpdata.begin(), vpdata.end(), compUser);
-   
-    time_t sortend = time(NULL);
-    cout << difftime(sortend, sortstart) << endl;
    
     //UI started..
     string line;
