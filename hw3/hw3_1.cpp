@@ -76,7 +76,7 @@ int precedence(char const& operation){
     return 15-prec;
 }
 
-int operantNum(char const& operation){
+int operantNumber(char const& operation){
     int operantNum;
     switch(operation){
         //+
@@ -140,7 +140,7 @@ int operantNum(char const& operation){
     return operantNum;
 }
 
-void toPostfix(char const* const infix, int const& len, char* postfix){
+int toPostfix(char const* const infix, int const& len, char* postfix){
     stack<char> operatorStack;
     int plen = 0;
     for(int i = 0; i<len; ++i){
@@ -191,14 +191,104 @@ void toPostfix(char const* const infix, int const& len, char* postfix){
         operatorStack.pop();
         ++plen;
     }
+    postfix[plen] = '\0';
+    return plen;
+}
+
+int calculate(char const* postfix, int const intarr[]){
+    stack<int> operantStack;
+    char c;
+    int operant[2], result = 0, intIndex = 0;
+    for(int i = 0; postfix[i] != '\0'; ++i){
+        c = postfix[i];
+        if(isNum(c)){
+            operantStack.push(intarr[intIndex]);
+            ++intIndex;
+        }
+        else{
+            int operantNum = operantNumber(c);
+            for(int j = 0; j < operantNum; ++j){
+                operant[j] = operantStack.top();
+                operantStack.pop();
+            }
+            switch(c){
+                //+
+                case 'p':
+                    result = operant[0];
+                    break;
+                //-
+                case 'n':
+                    result = -operant[0];
+                    break;
+                case '!':
+                    result = !operant[0];
+                    break;
+                case '~':
+                    result = ~operant[0];
+                    break;
+                case '*':
+                    result = operant[1] * operant[0];
+                    break;
+                case '/':
+                    result = operant[1] / operant[0];
+                    break;
+                case '%':
+                    result = operant[1] % operant[0];
+                    break;
+                case '+':
+                    result = operant[1] + operant[0];
+                    break;
+                case '-':
+                    result = operant[1] - operant[0];
+                    break;
+                //<<
+                case 'l':
+                    result = operant[1] << operant[0];
+                    break;
+                //>>
+                case 'r':
+                    result = operant[1] >> operant[0];
+                    break;
+                case '&':
+                    result = operant[1] & operant[0];
+                    break;
+                case '^':
+                    result = operant[1] ^ operant[0];
+                    break;
+                case '|':
+                    result = operant[1] | operant[0];
+                    break;
+                //&&
+                case 'a':
+                    result = operant[1] && operant[0];
+                    break;
+                //||
+                case 'o':
+                    result = operant[1] || operant[0];
+                    break;
+                default:
+                    cout << c << " calculate error" << endl;
+                    return -1;
+            }
+            operantStack.push(result);
+        }
+    }
+    return result;
 }
 
 int main(){
-    int len = 0;
+    int len = 0, j;
     char spaceFilter = '\0', c = '\0', lastc = '\0';
     char infix[1000000], postfix[2000000];
     int intarr[1000000], intNum = 0;
     char intbuff[10] = {'\0'};
+    while(true){
+    len = 0;
+    spaceFilter = '\0'; 
+    c = '\0';
+    lastc = '\0';
+    intNum = 0;
+    intbuff[0] = '\0';
     while(cin.get(spaceFilter)){
         if(spaceFilter != '\t' && spaceFilter != ' ' && spaceFilter != '\n'){
             c = spaceFilter;
@@ -208,7 +298,7 @@ int main(){
                     intbuff[1] = '\0';
                 }
                 else{
-                    strcat(intbuff, &c);
+                    strncat(intbuff, &c, 1);
                 }
             }
             else{
@@ -262,12 +352,15 @@ int main(){
         }
         lastc = c;
     }
+   
     toPostfix(infix, len, postfix);
+
+    cout << "RESULT: " << calculate(postfix, intarr) << endl;
 
     cout << "infix expression: " << infix << endl;
     cout << "infix expression: ";
 
-    int j = 0;
+    j = 0;
     for(int i = 0; i<len; ++i){
         if(infix[i] == 'N'){
             cout << intarr[j];
@@ -279,7 +372,7 @@ int main(){
     }
     cout << endl;
 
-    cout << "postfix expression: " << infix << endl;
+    cout << "postfix expression: " << postfix << endl;
     cout << "postfix expression: ";
 
     j = 0;
@@ -293,4 +386,5 @@ int main(){
         }
     }
     cout << endl;
+}
 }
