@@ -519,6 +519,7 @@ int main(){
         toPostfix(infix, len, postfix, douarr);
     
         cout << "Postfix Exp:";
+        cout << fixed << setprecision(6);
         for(int i = 0, j=0; i<len; ++i){
             if(postfix[i] == 'N'){
                 cout << " " << douarr[j];
@@ -531,8 +532,9 @@ int main(){
         }
         cout << endl;
     
-        printf("RESULT: %.6f\n", calculate(postfix, douarr));
-        //cout << "RESULT: " << calculate(postfix, douarr) << endl;
+        //printf("RESULT: %.6f\n", calculate(postfix, douarr));
+        cout << "RESULT: " << calculate(postfix, douarr) << endl;
+        cout.unsetf(ios::fixed);
     }
     delete [] douarr;
 }
