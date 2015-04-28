@@ -87,6 +87,101 @@ void printStack(stack<char>& operatorStack){
 }
 int toPostfix(char const* const infix, int const& len, char* postfix, int const intarr[]){
 
+    //cout << "# transform from infix to postfix" << endl;
+
+    stack<char> operatorStack;
+    string output;
+
+    int plen = 0, intIndex = 0;
+    //go through infix[i]
+    for(int i = 0; i<len; ++i){
+        char c = infix[i];
+        if(isNum(c)){
+            //cout << "encounter " << intarr[intIndex] << ", output directly" << endl;
+            output += to_string(intarr[intIndex]);
+            output += " ";
+            ++intIndex;
+            //mark 'N' and move to next
+            postfix[plen] = 'N';
+            ++plen;
+        }
+        else{
+            //cout << "encounter ";
+            //printOperator(c);
+            if(c == ')'){
+                //cout << ", flush the stack to output until meeting (" << endl;
+                while(operatorStack.top() != '('){
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                }
+                operatorStack.pop();
+            }
+            else if(operatorStack.empty() || operatorStack.top() == '('){
+                //cout << ", push to stack" << endl;
+                operatorStack.push(c);
+            }
+            // +, -, ~, !, should be computed from right to left
+            else if(precedence(operatorStack.top()) == 15-3){
+                if(precedence(operatorStack.top()) <= precedence(c)){
+                    //cout << ", push to stack" << endl;
+                    operatorStack.push(c);
+                }
+                else{
+                    //cout << "\n*** stack.top() has greater precedence, so hold on and output the top of stack" << endl;
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                    --i;
+                }
+            }
+            // else computed from left to right
+            else{
+                if(precedence(operatorStack.top()) < precedence(c)){
+                    //cout << ", push to stack" << endl;
+                    operatorStack.push(c);
+                }
+                else{
+                    //cout << "\n*** stack.top() has greater precedence, so hold on and output the top of stack" << endl;
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                    --i;
+                }
+            
+            }
+        }
+        //cout << "\tcurrent output: " << output << endl;
+        //cout << "\tcurrent stack: ";
+        //printStack(operatorStack);
+        //cout << endl;
+    }
+    //cout << "encounter NOTHING, flush the stack to output" << endl;
+    while(!operatorStack.empty()){
+        putOperator(operatorStack.top(), output);
+        output += " ";
+        postfix[plen] = operatorStack.top();
+        operatorStack.pop();
+        ++plen;
+    }
+    postfix[plen] = '\0';
+        
+    //cout << "\tcurrent output: " << output << endl;
+    //cout << "\tcurrent stack: ";
+    //printStack(operatorStack);
+
+    //cout << "# postfix expression transforming complete" << endl;
+
+    return plen;
+}
+int toPostfix_with_step(char const* const infix, int const& len, char* postfix, int const intarr[]){
+
     cout << "# transform from infix to postfix" << endl;
 
     stack<char> operatorStack;
@@ -349,10 +444,11 @@ int main(){
             break;
         }
    
+        //toPostfix_with_step(infix, len, postfix, intarr);
         toPostfix(infix, len, postfix, intarr);
 
         cout << "Postfix Exp:";
-        for(int i = 0, j=0; i<len; ++i){
+        for(int i = 0, j=0; postfix[i] != '\0'; ++i){
             if(postfix[i] == 'N'){
                 cout << " " << intarr[j];
                 ++j;

@@ -152,7 +152,7 @@ void printStack(stack<char>& operatorStack){
     }
     cout << endl;
 }
-int toPostfix(char const* const infix, int const& len, char* postfix, double const douarr[]){
+int toPostfix_with_step(char const* const infix, int const& len, char* postfix, double const douarr[]){
 
     cout << "# transform from infix to postfix" << endl;
 
@@ -165,7 +165,7 @@ int toPostfix(char const* const infix, int const& len, char* postfix, double con
         char c = infix[i];
         if(isNum(c)){
             cout << "encounter " << douarr[douIndex] << ", output directly" << endl;
-            output += to_string_with_precision(douarr[douIndex], 2);
+            output += to_string_with_precision(douarr[douIndex]);
             output += " ";
             ++douIndex;
             //mark 'N' and move to next
@@ -247,6 +247,104 @@ int toPostfix(char const* const infix, int const& len, char* postfix, double con
     printStack(operatorStack);
 
     cout << "# postfix expression transforming complete" << endl << endl;
+
+    return plen;
+}
+int toPostfix(char const* const infix, int const& len, char* postfix, double const douarr[]){
+
+    //cout << "# transform from infix to postfix" << endl;
+
+    stack<char> operatorStack;
+    string output;
+
+    int plen = 0, douIndex = 0;
+    //go through infix[i]
+    for(int i = 0; i<len; ++i){
+        char c = infix[i];
+        if(isNum(c)){
+            //cout << "encounter " << douarr[douIndex] << ", output directly" << endl;
+            output += to_string_with_precision(douarr[douIndex]);
+            output += " ";
+            ++douIndex;
+            //mark 'N' and move to next
+            postfix[plen] = 'N';
+            ++plen;
+        }
+        else{
+            //cout << "encounter ";
+            //printOperator(c);
+            if(c == ')' || c == ','){
+                //cout << ", flush the stack to output until meeting ( or ," << endl;
+                while(operatorStack.top() != '(' && operatorStack.top() != ','){
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                }
+                operatorStack.pop();
+                if(c == ','){
+                    operatorStack.push(c);
+                }
+            }
+            else if(operatorStack.empty() || operatorStack.top() == '(' || operatorStack.top() == ','){
+                //cout << ", push to stack" << endl;
+                operatorStack.push(c);
+            }
+            // +, -, ~, !, should be computed from right to left
+            else if(precedence(operatorStack.top()) == 15-3 || precedence(operatorStack.top()) == 15-2){
+                if(precedence(operatorStack.top()) <= precedence(c)){
+                    //cout << ", push to stack" << endl;
+                    operatorStack.push(c);
+                }
+                else{
+                    //cout << "\n*** stack.top() has greater precedence, so hold on and output the top of stack" << endl;
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                    --i;
+                }
+            }
+            // else computed from left to right
+            else{
+                if(precedence(operatorStack.top()) < precedence(c)){
+                    //cout << ", push to stack" << endl;
+                    operatorStack.push(c);
+                }
+                else{
+                    //cout << "\n*** stack.top() has greater precedence, so hold on and output the top of stack" << endl;
+                    putOperator(operatorStack.top(), output);
+                    output += " ";
+                    postfix[plen] = operatorStack.top();
+                    operatorStack.pop();
+                    ++plen;
+                    --i;
+                }
+            
+            }
+        }
+        //cout << "\tcurrent output: " << output << endl;
+        //cout << "\tcurrent stack: ";
+        //printStack(operatorStack);
+        //cout << endl;
+    }
+    //cout << "encounter NOTHING, flush the stack to output" << endl;
+    while(!operatorStack.empty()){
+        putOperator(operatorStack.top(), output);
+        output += " ";
+        postfix[plen] = operatorStack.top();
+        operatorStack.pop();
+        ++plen;
+    }
+    postfix[plen] = '\0';
+        
+    //cout << "\tcurrent output: " << output << endl;
+    //cout << "\tcurrent stack: ";
+    //printStack(operatorStack);
+
+    //cout << "# postfix expression transforming complete" << endl << endl;
 
     return plen;
 }
@@ -371,7 +469,7 @@ int main(){
     char infix[1000001], postfix[1000001];
     double* douarr = new double[1000000];
     int douNum = 0;
-    char doubuff[10] = {'\0'};
+    char doubuff[20] = {'\0'};
     bool isEOF = false;
     while(true){
         len = 0;
@@ -414,9 +512,6 @@ int main(){
                         continue;
                     }
                     */
-                    if((c == '+' || c == '-') && (!isNum(lastc) && lastc != ')')){
-                        c = (c == '+')? 'p' : 'n';
-                    }
                     switch(c){
                         //sin or sqrt
                         case 's':{
@@ -467,6 +562,9 @@ int main(){
                             break;
                         }
                     }
+                    if((c == '+' || c == '-') && (!isNum(lastc) && lastc != ')')){
+                        c = (c == '+')? 'p' : 'n';
+                    }
                     if(c == lastc){
                         switch(c){
                             //&&
@@ -516,11 +614,12 @@ int main(){
             break;
         }
        
-        toPostfix(infix, len, postfix, douarr);
+        toPostfix_with_step(infix, len, postfix, douarr);
+        //toPostfix(infix, len, postfix, douarr);
     
         cout << "Postfix Exp:";
         cout << fixed << setprecision(6);
-        for(int i = 0, j=0; i<len; ++i){
+        for(int i = 0, j=0; postfix[i] != '\0'; ++i){
             if(postfix[i] == 'N'){
                 cout << " " << douarr[j];
                 ++j;
@@ -535,6 +634,17 @@ int main(){
         //printf("RESULT: %.6f\n", calculate(postfix, douarr));
         cout << "RESULT: " << calculate(postfix, douarr) << endl;
         cout.unsetf(ios::fixed);
+        /*
+        cout << "testPrintOperator: ";
+        for(int i = 0; i<strlen(postfix); ++i){
+           printOperator(postfix[i]); 
+        }
+        cout << endl << "testPrintOperator: ";
+        for(int i = 0; i<strlen(postfix); ++i){
+           cout << postfix[i]; 
+        }
+        cout << endl;
+        */
     }
     delete [] douarr;
 }
