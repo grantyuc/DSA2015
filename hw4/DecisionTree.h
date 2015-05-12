@@ -3,7 +3,6 @@
 #include <vector>
 
 #define MAX_FEATURE (1024+1)
-#define MAX_TRAINING_DATA (3000000)
 
 typedef std::vector<double*>::iterator Iterator;
 
