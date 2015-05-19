@@ -38,5 +38,8 @@ clean:
 	rm -rf $(target)
 
 ta: $(ta)
-	make -f $(ta) run_tree
-	make -f $(ta) run_forest
+	make -f $(ta) .PHONY
+
+cache:
+	git config --global credential.helper cache
+
