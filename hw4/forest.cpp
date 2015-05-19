@@ -59,19 +59,16 @@ int main(int argc,char** argv) {
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
 
     const int TREE_SIZE = examples.size()/3;
-    DecisionTree** t = new DecisionTree*[FOREST_SIZE];
+    DecisionTree* t = new DecisionTree[FOREST_SIZE];
 
     for(int i = 0; i<FOREST_SIZE; ++i){
         shuffle(examples.begin(), examples.end(), default_random_engine(seed));
-        t[i] = new DecisionTree(examples.begin(), examples.begin()+TREE_SIZE, featuresTotal, 0.);
-        t[i]->makeDecisionTree(t[i]->getRoot());
+        t[i] = DecisionTree(examples.begin(), examples.begin()+TREE_SIZE, featuresTotal, 0.);
+        t[i].makeDecisionTree(t[i].getRoot());
     }
 
     printForestPredict(t, FOREST_SIZE);
 
-    for(int i = 0; i<FOREST_SIZE; ++i){
-        delete t[i];
-    }
     delete[] t;
 
     for(unsigned int i = 0; i<examples.size(); ++i){

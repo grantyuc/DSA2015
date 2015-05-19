@@ -13,7 +13,7 @@ double confusion(int const&, int const&);
 double confusion(int const&, int const&, int const&, int const&);
 
 void printTreePredict(DecisionTree const&, Node*, int = 0, int = 0);
-void printForestPredict(DecisionTree**, int);
+void printForestPredict(DecisionTree*, int);
 
 class Node{
     friend class DecisionTree;
@@ -74,13 +74,23 @@ class DecisionTree{
         DecisionTree(std::vector<double*> ex, int feaTotal, double tol) : examples(ex), featuresTotal(feaTotal), tolerance(tol){root = new Node(examples.begin(), examples.end());}
         DecisionTree(Iterator fir, Iterator las, int feaTotal, double tol) : examples(fir, las), featuresTotal(feaTotal), tolerance(tol){root = new Node(examples.begin(), examples.end());}
         ~DecisionTree();
+        DecisionTree& operator=(DecisionTree&& t){
+            if(this != &t){
+                root = t.root;
+                t.root = nullptr;
+                examples = std::move(t.examples);
+                featuresTotal = t.featuresTotal;
+                tolerance = t.tolerance;
+            }
+            return *this;
+        }
+
         //get
         Node* getRoot() const{return root;}
 
+        //member finctions
         double setBestCriterion(Node*);
-
         Node* makeDecisionTree(Node*);
-
         int tree_predict(Node*, double *);
 
         friend std::ostream& operator<<(std::ostream&, const DecisionTree&);

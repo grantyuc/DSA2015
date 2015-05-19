@@ -134,7 +134,7 @@ double Node::minConfusionWithFeature(int const& feaNum, double& bestCriterion){
 }
 DecisionTree::~DecisionTree(){
     Node* p = root;
-    while(true){
+    while(p != nullptr){
         while(!p->isExternal()){
             if(p->left != 0){
                 p = p->left;
@@ -245,9 +245,9 @@ void printTreePredict(DecisionTree const& tree, Node* p, int num, int it){
         --it;
     }
 }
-void printForestPredict(DecisionTree** forest, int size){
+void printForestPredict(DecisionTree* forest, int size){
     for(int i = 0; i<size; ++i){
-        printTreePredict(*forest[i], forest[i]->getRoot(), i+1);
+        printTreePredict(forest[i], forest[i].getRoot(), i+1);
     }
     std::cout << "int forest_predict(double *attr){" << std::endl; 
     std::cout << "    int vote = 0;" << std::endl;
