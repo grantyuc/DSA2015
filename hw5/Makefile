@@ -11,8 +11,8 @@ all: $(target)
 %: %.cpp
 	g++ $(CPPFLAGS) $< -o $@
 
-system: system.cpp BinomialHeap.h
-	g++ $(CPPFLAGS) $< BinomialHeap.h -o $@
+system: system.cpp binomial_heap.h
+	g++ $(CPPFLAGS) $< binomial_heap.h -o $@
 
 run:
 	./system

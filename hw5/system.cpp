@@ -1,4 +1,4 @@
-#include "BinomialHeap.h"
+#include "binomial_heap.h"
 #include <cstring>
 #include <sstream>
 
