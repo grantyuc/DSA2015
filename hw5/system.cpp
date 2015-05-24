@@ -100,7 +100,7 @@ int main(){
             }
 
             default:
-                cout << "command error! hashCode = " << hashCode(cmd, strlen(cmd)) << endl;
+                //cout << "command error! hashCode = " << hashCode(cmd, strlen(cmd)) << endl;
                 break;
         }
         //cout << bh[cm] << endl;
