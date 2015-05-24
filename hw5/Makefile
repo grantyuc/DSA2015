@@ -1,7 +1,7 @@
 target = system
 CFLAGS = -O2 -Wall
-CPPFLAGS = -O2 -std=c++11 -Wall
 CPPFLAGS = -O0 -std=c++11 -Wall -g
+CPPFLAGS = -O2 -std=c++11 -Wall
 
 all: $(target)
 
