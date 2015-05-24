@@ -124,7 +124,7 @@ class BinomialHeap {
                 if(h.trees[i]->size() != 0)
                     std::cout << "trees[" << i << "]: \n" << *h.trees[i] << std::endl;
             }
-            std::cout << "There are " << h.size << " tasks on this computer." << std::endl;
+            std::cout << "There are " << h.size << " tasks on this computer.";
             return out;
         }
 };

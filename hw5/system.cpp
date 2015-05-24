@@ -42,7 +42,7 @@ int main(){
                 Task t(id, p);
                 bh[cm].insert(t);
                 cout << "There are " << bh[cm].getSize() << " tasks on computer " << cm << "." << endl;
-                cout << bh[cm] << endl;
+                //cout << bh[cm] << endl;
                 break;
             }
             //execute
@@ -63,7 +63,7 @@ int main(){
                         }
                         else break;
                     }
-                    cout << bh[cm] << endl;
+                    //cout << bh[cm] << endl;
                 }
                 else cout << "No more task on this computer." << endl;
                 break;
@@ -80,7 +80,7 @@ int main(){
                     bh[cm].merge(bh[cm2]);
                     Task priorTask = bh[cm].top();
                     cout << "The largest priority number is now " << priorTask.getP() << " on " << cm << "." << endl;
-                    cout << bh[cm] << endl;
+                    //cout << bh[cm] << endl;
                 }
                 else{
                     cout << "Merging request failed." << endl;
@@ -103,5 +103,6 @@ int main(){
                 cout << "command error! hashCode = " << hashCode(cmd, strlen(cmd)) << endl;
                 break;
         }
+        //cout << bh[cm] << endl;
     }
 }
