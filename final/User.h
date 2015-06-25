@@ -1,6 +1,6 @@
 #include "md5.h"
 #include <cmath>
-#include <ctime>
+#include <map>
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -12,44 +12,56 @@ int maxLenDiffWithScore(const int& score){
 }
 
 class CompareStringLength{
-    bool operator() (const string& id1, const string& id2){
-        if(id1.length() != id2.length()) 
-            return id1.length() < id2.length();
-        else return id1 < id2;
-    }
+    public:
+        bool operator() (const string& id1, const string& id2){
+            if(id1.length() != id2.length()) 
+                return id1.length() < id2.length();
+            else return id1 < id2;
+        }
 };
 
 class History{
     public:
         History();
-        History(const bool& to, const string& i1, const string& i2, const int& mon) : transferTo(to), id1(i1), id2(i2), money(mon) {timeStamp = time(0);}
+        History(const string& i1, const string& i2, const int& mon) : id1(i1), id2(i2), money(mon) {++time; timeStamp = time;}
 
-        bool transferTo;    //id1 transfer to or recieve from id2, 1: to, 0: from
-        int money;
+        // id1 transfer money to id2 at timeStamp
         string id1;
         string id2;
-        time_t timeStamp;   //as key
+        int money;
+        int timeStamp;   //as key
+
+        static unsigned int time;
+
+        bool id1Is(const string& id){return id == id1;}
+        bool id2Is(const string& id){return id == id2;}
 };
+unsigned int History::time = 0;
 
 class User{
     public:
         User();
-        User(const string& i, const string& pw) : id(i), money(0), isDeleted(false) {hashpw = md5(pw);}
+        User(const string& i, const string& pw) : id(i), money(0) {hashpw = md5(pw); usermp[id] = this;}
+                                                                                //or usermp.insert( pair<string, User*>(i, this) )
+        ~User(){remove();}
 
         int getMoney(){return money;}
+        string getId(){return id;}
         bool isCorrectPw(const string& pw){return hashpw == md5(pw);}
 
-        int deposit(const int& num){money += num; return money;}
-        int withdraw(const int& num){money -= num; return money;}
+        void deposit(const int& num){money += num;}
+        void withdraw(const int& num){money -= num;}
 
-        void remove();
+        void remove(){historymp.clear(); usermp.erase(this->id);}
+        void transferTo(const User& u, const int& money);
         void merge(const User& u);
         void printHistory();
 
+        static map<string, User*, CompareStringLength> usermp;  //map id to the user
+
     private:
         string id;
-        string hashpw;           //hashed
+        string hashpw;                                          //hashed password
         int money;
-        bool isDeleted;          //or del directly
-        vector<History> history; //history heap
+        map<unsigned int, History*> historymp;                  //map timeStamp to the history
 };
