@@ -1,0 +1,43 @@
+create a a
+create ab ab
+create abc abc
+create abcd abcd
+create abdc abdc
+create aacd aacd
+login a a
+deposit 1000
+login abc abc
+deposit 2000
+transfer abcd 200
+transfer a 300
+transfer a 120
+login a a
+transfer abc 200
+transfer abdc 20
+login ab ab
+deposit 100
+transfer abcd 1
+transfer abcd 2
+transfer abcd 3
+transfer abcd 4
+transfer abcd 5
+transfer abcd 6
+transfer abcd 7
+transfer abcd 8
+transfer abcd 9
+
+
+print a
+
+print abc
+
+merge abc abc a a
+
+print abc
+
+print abcd
+
+merge abcd abcd abc abc
+
+print abcd
+

@@ -444,8 +444,8 @@ int main(){
             break;
         }
    
-        //toPostfix_with_step(infix, len, postfix, intarr);
-        toPostfix(infix, len, postfix, intarr);
+        toPostfix_with_step(infix, len, postfix, intarr);
+        //toPostfix(infix, len, postfix, intarr);
 
         cout << "Postfix Exp:";
         for(int i = 0, j=0; postfix[i] != '\0'; ++i){

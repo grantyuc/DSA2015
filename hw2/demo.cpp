@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 #define N 149639105
 #define DATAPOS_WORKSTATION "/tmp2/KDDCup2012/track2/kddcup2012track2.txt"
@@ -324,21 +325,32 @@ int main(int argc, char* argv[]){
     int dataNum;
     AdData** data = new AdData*[N];
     
+    clock_t t = clock();
     for (dataNum = 0; dataNum<N; ++dataNum){
         data[dataNum] = new AdData;
         if(!readinLine(fin, data[dataNum])){
             break;
         }
     }
+   
+    t = clock() - t;
+    cout << t / CLOCKS_PER_SEC <<endl;
 
     //STL vector storing the pointers to data[N]
-    vector<AdData*> vpdata;
+    vector<AdData*> vpdata(dataNum);
     for (int i = 0; i<dataNum; ++i){
-        vpdata.push_back(data[i]);
+        vpdata.at(i) = data[i];
     }
+   
+    t = clock() - t;
+    cout << t / CLOCKS_PER_SEC <<endl;
 
     //sort by UserID first..
     stable_sort(vpdata.begin(), vpdata.end(), compUser);
+    
+    t = clock() - t;
+    cout << t / CLOCKS_PER_SEC <<endl;
+
    
     //UI started..
     string line;

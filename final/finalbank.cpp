@@ -1,4 +1,5 @@
 #include "User.h"
+#include "findID.h"
 #include <cstring>
 #include <sstream>
 
@@ -18,6 +19,7 @@ int hashCode(const char* str, const int& len){
 
 int main(){
     string istring;
+    User* curUser = nullptr;
     while(getline(cin, istring)){
         istringstream sin(istring);
         char cmd[10] = {'\0'};
@@ -25,6 +27,8 @@ int main(){
 
         string id, id2, pw, pw2;
         int num;
+
+        auto &ump = User::usermp;
 
         switch(hashCode(cmd, strlen(cmd))){
             //login
@@ -34,14 +38,17 @@ int main(){
                     cout << "-> login id pw" << endl; 
                     break;
                 }
-                if(/*no such account*/1) {
+                auto it = ump.find(id);
+                if(it == ump.end()) {
                     cout << "ID " << id << " not found" << endl;
                     break;
                 }
-                if(/*pw error*/1) {
+                User* temUser = it->second;
+                if(!temUser->isCorrectPw(pw)) {
                     cout << "wrong password" << endl;
                     break;
                 }
+                curUser = temUser;
                 cout << "success" << endl;
                 break;
             }
@@ -52,11 +59,14 @@ int main(){
                     cout << "-> create id pw" << endl; 
                     break;
                 }
-                if(/*id exsits*/1){
+                auto it = ump.find(id);
+                if(it != ump.end()) {
                     cout << "ID " << id << " exists, ";
-                    //print 10 best unused id
+                    //TODO print 10 best unused id
+                    User::create_suggest(id);
                     break;
                 }
+                new User(id, pw);
                 cout << "success" << endl;
                 break;
             }
@@ -67,14 +77,17 @@ int main(){
                     cout << "-> delete id pw" << endl; 
                     break;
                 }
-                if(/*no such account*/1) {
+                auto it = ump.find(id);
+                if(it == ump.end()) {
                     cout << "ID " << id << " not found" << endl;
                     break;
                 }
-                if(/*pw error*/1) {
+                User* temUser = it->second;
+                if(!temUser->isCorrectPw(pw)) {
                     cout << "wrong password" << endl;
                     break;
                 }
+                delete temUser;
                 cout << "success" << endl;
                 break;
             }
@@ -85,23 +98,28 @@ int main(){
                     cout << "-> merge id1 pw1 id2 pw2" << endl; 
                     break;
                 }
-                if(/*no such account id1*/1) {
+                auto it = ump.find(id);
+                if(it == ump.end()) {
                     cout << "ID " << id << " not found" << endl;
                     break;
                 }
-                if(/*no such account id2*/1) {
+                auto it2 = ump.find(id2);
+                if(it2 == ump.end()) {
                     cout << "ID " << id2 << " not found" << endl;
                     break;
                 }
-                if(/*pw1 error*/1) {
+                User* temUser = it->second;
+                if(!temUser->isCorrectPw(pw)) {
                     cout << "wrong password1" << endl;
                     break;
                 }
-                if(/*pw2 error*/1) {
+                User* temUser2 = it2->second;
+                if(!temUser2->isCorrectPw(pw2)) {
                     cout << "wrong password2" << endl;
                     break;
                 }
-                cout << "success, " << id << " has " << "[X] dollars" << endl;
+                temUser->merge(*temUser2);
+                cout << "success, " << id << " has " << temUser->getMoney() << " dollars" << endl;
                 break;
             }
             //deposit
@@ -111,7 +129,8 @@ int main(){
                     cout << "-> deposit num" << endl; 
                     break;
                 }
-                cout << "success, " << "[X] dollars in current account" << endl;
+                curUser->deposit(num);
+                cout << "success, " << curUser->getMoney() << " dollars in current account" << endl;
                 break;
             }
             //withdraw
@@ -121,11 +140,12 @@ int main(){
                     cout << "-> withdraw num" << endl; 
                     break;
                 }
-                if(/*id.getMoney < num*/1){
-                    cout << "fail, " << "[X] dollars only in current account" << endl;
+                if(curUser->getMoney() < num){
+                    cout << "fail, " << curUser->getMoney() << " dollars only in current account" << endl;
                 }
                 else{
-                    cout << "success, " << "[X] dollars left in current account" << endl;
+                    curUser->withdraw(num);
+                    cout << "success, " << curUser->getMoney() << " dollars left in current account" << endl;
                 }
                 break;
             }
@@ -136,27 +156,47 @@ int main(){
                     cout << "-> transfer id num" << endl; 
                     break;
                 }
-                if(/*no such account id*/1) {
+                auto it = ump.find(id);
+                if(it == ump.end()) {
                     cout << "ID " << id << " not found, ";
-                    //print best 10 existing ids
+                    //TODO print best 10 existing ids
+                    User::recommend(id);
                     break;
                 }
-                if(/*id.getMoney < num*/1){
-                    cout << "fail, " << "[X] dollars only in current account" << endl;
+                if(curUser->getMoney() < num){
+                    cout << "fail, " << curUser->getMoney() << " dollars only in current account" << endl;
                 }
                 else{
-                    cout << "success, " << "[X] dollars left in current account" << endl;
+                    User* temUser = it->second;
+                    if(temUser->getId() == curUser->getId()){
+                        cout << "cannot transfer to yourself" << endl;
+                        break;
+                    }
+                    curUser->transferTo(*temUser, num);
+                    cout << "success, " << curUser->getMoney() << " dollars left in current account" << endl;
                 }
                 break;
             }
             //find
             case 3596:{
+                cout << endl; break;
                 sin >> id;
                 if(!sin) {
                     cout << "-> find id" << endl; 
                     break;
                 }
                 //print all satisfying ids
+                id = "\\b" + id + "\\b";
+                id = IDreplace(id, "?", "\\S");
+                id = IDreplace(id, "*", "[0-9A-Za-z]*");
+                string idlist;
+                for(auto it = User::usermp.begin(); it != User::usermp.end(); ++it){
+                    if(curUser != nullptr && it->first == curUser->getId()) continue;
+                    idlist += it->first;
+                    idlist += " ";
+                }
+                regex_find(id, idlist);
+
                 break;
             }
             //search
@@ -166,19 +206,31 @@ int main(){
                     cout << "-> search id" << endl; 
                     break;
                 }
-                //id.printHistory();
+                curUser->printHistory(id);
                 break;
             }
-
             //print
             case 13399:{
                 sin >> id;   
                 if(!sin) {
-                    cout << "-> print cm" << endl; 
+                    for(auto it = ump.begin(); it != ump.end(); ++it){
+                        cout << it->first << " ";
+                    }
+                    cout << endl;
                     break;
                 }
+                auto it = ump.find(id);
+                if(it == ump.end()) {
+                    cout << "ID " << id << " not found" << endl;
+                    break;
+                }
+                User* temUser = it->second;
+                cout << id << " has " << temUser->getMoney() << " dollars. history as follow" << endl;
+                temUser->printHistory();
                 break;
             }
+            //'\n'
+            case 0: break;
 
             default:
                 cout << "command error! hashCode = " << hashCode(cmd, strlen(cmd)) << endl;

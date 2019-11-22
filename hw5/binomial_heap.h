@@ -190,6 +190,16 @@ typename BinomialHeap<T>::CarrySum BinomialHeap<T>::merge_tree(BT *a, BT *b, BT 
  *          first: the maximum element
  *          second: a binomial heap consists of other elements
  */
+
+int log2(unsigned int i){
+    int log_i = 0;
+    while(i > 1){
+        i >>= 1;
+        ++log_i;
+    }
+    return log_i;
+}
+
 template<class T>
 typename BinomialHeap<T>::MaxRemainder BinomialHeap<T>::pop_max(BT* const a) {
     // write your code here.
@@ -197,11 +207,7 @@ typename BinomialHeap<T>::MaxRemainder BinomialHeap<T>::pop_max(BT* const a) {
     BH rmd;
     for(typename std::list<BT*>::iterator it = a->children.begin(); it != a->children.end(); ++it){
         unsigned int i = (*it)->size();
-        int log_i = 0;
-        while(i > 1){
-            i >>= 1;
-            ++log_i;
-        }
+        int log_i = log2(i);
         rmd.trees[log_i] = *it;
         rmd.size += (*it)->_size;
     }
@@ -218,7 +224,8 @@ void BinomialHeap<T>::merge(BH &b) {
     size += b.size;
     b.size = 0;
     BT *carrier = nullptr;
-    for(int i = 0; i<32; ++i){
+    int log_size = log2(size);
+    for(int i = 0; i<=log_size; ++i){
         CarrySum sum = merge_tree(trees[i], b.trees[i], carrier);
         carrier = sum.first;
         trees[i] = sum.second;

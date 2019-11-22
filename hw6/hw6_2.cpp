@@ -90,6 +90,9 @@ int main(){
     for(int i = 0; i<32; ++i){
         avl_probe(avlt, s[i]);
     }
+    print_avl_in(avlt->avl_root);
+    cout << endl;
+
     print_avl_pre(avlt->avl_root);
     cout << endl;
 
